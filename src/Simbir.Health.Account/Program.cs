@@ -89,7 +89,6 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-
 var app = builder.Build();
 
 await app.InitializeDatabaseAsync();

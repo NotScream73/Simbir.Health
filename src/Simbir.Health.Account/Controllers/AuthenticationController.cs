@@ -76,14 +76,7 @@ namespace Simbir.Health.Account.Controllers
         {
             var validationResult = await _tokenService.ValidateAccessToken(accessToken);
 
-            if (validationResult.IsValid)
-            {
-                return Ok(_mapper.Map<ValidationTokenResult>(validationResult));
-            }
-            else
-            {
-                return Unauthorized(_mapper.Map<ValidationTokenResult>(validationResult));
-            }
+            return Ok(_mapper.Map<ValidationTokenResult>(validationResult));
         }
 
         [HttpPost("Refresh")]

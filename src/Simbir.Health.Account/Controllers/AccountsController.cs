@@ -94,7 +94,6 @@ namespace Simbir.Health.Account.Controllers
         public async Task<IActionResult> DeleteUser([Required] int id)
         {
             await _userService.DeleteAsync(id);
-
             return Ok();
         }
     }

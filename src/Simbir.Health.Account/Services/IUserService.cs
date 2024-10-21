@@ -13,7 +13,7 @@ namespace Simbir.Health.Account.Services
         Task<AccountMeInfoDTO> GetMeInfoByIdAsync(int userId);
         Task<AccountInformationListDTO> GetAllAsync(int from, int count);
         Task UpdateAsync(int userId, UserUpdateDTO user);
-        Task<bool> DeleteAsync(int userId);
+        Task DeleteAsync(int userId);
         Task<bool> DoesUserExistAsync(int userId);
         Task UpdateUserAsync(int userId, UserUpdateByAdminDTO userDTO);
         Task<DoctorInformationListDTO> GetAllDoctorsAsync(DoctorListFilterDTO filter);

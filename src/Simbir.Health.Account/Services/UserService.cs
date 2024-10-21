@@ -137,7 +137,7 @@ namespace Simbir.Health.Account.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteAsync(int userId)
+        public async Task DeleteAsync(int userId)
         {
             var user = await GetByIdAsync(userId, false, null)
                 ?? throw new NotFoundException($"Пользователь с ID {userId} не найден.");
@@ -145,7 +145,6 @@ namespace Simbir.Health.Account.Services
             user.IsDeleted = true;
 
             await _context.SaveChangesAsync();
-            return true;
         }
 
         public async Task<bool> DoesUserExistAsync(int userId)
