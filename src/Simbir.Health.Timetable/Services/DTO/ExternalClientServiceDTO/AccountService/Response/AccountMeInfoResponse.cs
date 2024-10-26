@@ -1,4 +1,4 @@
-﻿namespace Simbir.Health.Account.Models.DTO
+﻿namespace Simbir.Health.Timetable.Models.DTO
 {
     public class AccountMeInfoResponse
     {

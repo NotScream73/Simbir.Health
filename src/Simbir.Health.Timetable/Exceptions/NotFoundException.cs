@@ -1,4 +1,4 @@
-﻿namespace Simbir.Health.Hospital.Exceptions
+﻿namespace Simbir.Health.Timetable.Exceptions
 {
     public class NotFoundException : ApiException
     {

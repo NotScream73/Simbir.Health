@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Simbir.Health.Hospital.Models.DTO;
+using Simbir.Health.Timetable.Models.DTO;
 using System.Text.Json;
 
-namespace Simbir.Health.Hospital.Attributes;
+namespace Simbir.Health.Timetable.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true)]
 public class ApiAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilter
 {
-    private readonly string _role;
+    private readonly List<string> _roles;
 
     public ApiAuthorizeAttribute(string role = null)
     {
-        _role = role;
+        _roles = role?.Split(',').ToList() ?? [];
     }
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
@@ -41,7 +41,7 @@ public class ApiAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilt
 
                 if (validationResult != null && validationResult.IsValid)
                 {
-                    if (!string.IsNullOrEmpty(_role) && !validationResult.Roles.Contains(_role))
+                    if (_roles.Count != 0 && !_roles.Any(r => validationResult.Roles.Contains(r)))
                     {
                         context.Result = new ForbidResult();
                     }

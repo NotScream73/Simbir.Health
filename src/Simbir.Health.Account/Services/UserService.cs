@@ -179,6 +179,7 @@ namespace Simbir.Health.Account.Services
                     where u.Id == userId && !u.IsDeleted && u.IsLogin
                     select new AccountMeInfoDTO
                     {
+                        Id = u.Id,
                         LastName = u.LastName,
                         FirstName = u.FirstName,
                         UserName = u.UserName,

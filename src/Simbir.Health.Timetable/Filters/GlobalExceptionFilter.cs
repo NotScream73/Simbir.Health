@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Simbir.Health.Hospital.Exceptions;
+using Simbir.Health.Timetable.Exceptions;
 using System.ComponentModel.DataAnnotations;
 
-namespace Simbir.Health.Hospital.Filters
+namespace Simbir.Health.Timetable.Filters
 {
     public class GlobalExceptionFilter : IExceptionFilter
     {

@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Simbir.Health.Account.Filters;
 using Simbir.Health.Hospital.Data;
+using Simbir.Health.Hospital.Filters;
 using Simbir.Health.Hospital.Services;
 using System.Reflection;
 
@@ -45,7 +45,7 @@ builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.Authenticati
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "AccountService API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hospital API", Version = "v1" });
 
     // Настройка Swagger для использования JWT
     var securityScheme = new OpenApiSecurityScheme
@@ -96,7 +96,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 
 app.MapControllers();
 
