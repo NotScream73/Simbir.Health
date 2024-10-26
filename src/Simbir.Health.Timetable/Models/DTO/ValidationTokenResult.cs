@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Simbir.Health.Hospital.Models.DTO
+namespace Simbir.Health.Timetable.Models.DTO
 {
     public class ValidationTokenResult
     {

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Simbir.Health.Account.Exceptions;
 using Simbir.Health.Hospital.Data;
+using Simbir.Health.Hospital.Exceptions;
 using Simbir.Health.Hospital.Models;
 using Simbir.Health.Hospital.Models.DTO;
 using Simbir.Health.Hospital.Services.DTO;
