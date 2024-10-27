@@ -18,5 +18,6 @@ namespace Simbir.Health.Account.Services
         Task UpdateUserAsync(int userId, UserUpdateByAdminDTO userDTO);
         Task<DoctorInformationListDTO> GetAllDoctorsAsync(DoctorListFilterDTO filter);
         Task<DoctorInformationDTO> GetDoctorByIdAsync(int id);
+        Task<string[]> GetUserRolesByIdAsync(int id);
     }
 }

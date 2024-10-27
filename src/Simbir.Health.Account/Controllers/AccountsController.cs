@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Simbir.Health.Account.Attributes;
+using Simbir.Health.Account.Controllers.DTO;
 using Simbir.Health.Account.Exceptions;
-using Simbir.Health.Account.Models.DTO;
 using Simbir.Health.Account.Services;
 using Simbir.Health.Account.Services.DTO;
 using System.ComponentModel.DataAnnotations;
@@ -60,6 +61,15 @@ namespace Simbir.Health.Account.Controllers
             var list = await _userService.GetAllAsync(from, count);
 
             return Ok(list);
+        }
+
+        [HttpGet("{id:int}/Roles")]
+        [ApiAuthorize("Admin,Manager,Doctor")]
+        public async Task<IActionResult> GetUserRoles([Required] int id)
+        {
+            var roles = await _userService.GetUserRolesByIdAsync(id);
+
+            return Ok(roles);
         }
 
         [HttpPost("SignUp")]

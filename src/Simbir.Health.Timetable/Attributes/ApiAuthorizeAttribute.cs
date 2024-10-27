@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Simbir.Health.Timetable.Models.DTO;
+using Simbir.Health.Timetable.Controllers.DTO;
 using System.Text.Json;
 
 namespace Simbir.Health.Timetable.Attributes;
@@ -17,6 +17,10 @@ public class ApiAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilt
     }
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
+        var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
+
+        var externalServiceBaseUrlConfig = configuration.GetSection("ExternalServiceBaseUrl");
+
         var accessTokenHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
 
         if (string.IsNullOrEmpty(accessTokenHeader) || !accessTokenHeader.StartsWith("Bearer "))
@@ -27,7 +31,7 @@ public class ApiAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilt
 
         var accessToken = accessTokenHeader.Replace("Bearer ", "");
 
-        var url = $"https://localhost:7136/api/Authentication/Validate?accessToken={accessToken}";
+        var url = $"{externalServiceBaseUrlConfig.GetSection("AccountService").Value}/api/Authentication/Validate?accessToken={accessToken}";
 
         try
         {
@@ -62,12 +66,7 @@ public class ApiAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilt
         }
         catch (Exception ex)
         {
-            context.Result = new ObjectResult(new
-            {
-                StatusCode = StatusCodes.Status500InternalServerError,
-                Error = "Сервис авторизации недоступен",
-                Details = ex.Message
-            });
+            context.Result = new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
         }
     }
 }

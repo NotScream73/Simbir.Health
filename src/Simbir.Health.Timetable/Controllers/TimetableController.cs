@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Simbir.Health.Timetable.Attributes;
-using Simbir.Health.Timetable.Models.DTO;
+using Simbir.Health.Timetable.Controllers.DTO;
 using Simbir.Health.Timetable.Services;
 using Simbir.Health.Timetable.Services.DTO;
 using System.ComponentModel.DataAnnotations;

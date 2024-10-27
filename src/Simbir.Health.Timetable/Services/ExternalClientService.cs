@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Simbir.Health.Timetable.Exceptions;
+using Simbir.Health.Timetable.Services.DTO;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -29,10 +31,18 @@ namespace Simbir.Health.Timetable.Services
             }
 
             var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
 
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<TResponse>(responseBody);
+            switch ((int)response.StatusCode)
+            {
+                case int statusCode when statusCode >= 500 && statusCode <= 599:
+                    throw new ServiceUnavailableException("Сервис не доступен.");
+                case 404:
+                    throw new NotFoundException(JsonConvert.DeserializeObject<NotFoundExceptionResponse>(await response.Content.ReadAsStringAsync()).Error);
+                default:
+                    response.EnsureSuccessStatusCode();
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<TResponse>(responseBody);
+            }
 
         }
 

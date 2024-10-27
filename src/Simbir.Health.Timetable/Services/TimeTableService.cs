@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Simbir.Health.Timetable.Configurations;
+using Simbir.Health.Timetable.Controllers.DTO;
 using Simbir.Health.Timetable.Data;
 using Simbir.Health.Timetable.Exceptions;
 using Simbir.Health.Timetable.Models;
-using Simbir.Health.Timetable.Models.DTO;
 using Simbir.Health.Timetable.Services.DTO;
-using Simbir.Health.Timetable.Services.DTO.ExternalClientServiceDTO.AccountService.Response;
-using Simbir.Health.Timetable.Services.DTO.ExternalClientServiceDTO.HospitalService;
 using System.Globalization;
 
 namespace Simbir.Health.Timetable.Services
@@ -14,11 +14,13 @@ namespace Simbir.Health.Timetable.Services
     {
         private readonly DataContext _context;
         private readonly ExternalClientService _externalClientService;
+        private readonly ExternalServiceBaseUrlConfig _externalServicesConfig;
 
-        public TimeTableService(DataContext context, ExternalClientService externalClientService)
+        public TimeTableService(DataContext context, ExternalClientService externalClientService, IOptions<ExternalServiceBaseUrlConfig> config)
         {
             _context = context;
             _externalClientService = externalClientService;
+            _externalServicesConfig = config.Value;
         }
 
         public async Task CreateTimeTableAsync(TimeTableCreateRequest request, string accessToken)
@@ -39,13 +41,16 @@ namespace Simbir.Health.Timetable.Services
                 throw new ApiException("Пожалейте врача.");
             }
 
-            var doctorUrl = $"https://localhost:7136/api/Doctors/{request.DoctorId}";
+            request.To = request.To.AddMilliseconds(-request.To.Millisecond);
+            request.From = request.From.AddMilliseconds(-request.From.Millisecond);
+
+            var doctorUrl = $"{_externalServicesConfig.AccountService}/api/Doctors/{request.DoctorId}";
 
             var doctor = await _externalClientService
                 .SendRequestAsync<DoctorInformationDTO>(accessToken, doctorUrl, HttpMethod.Get, null)
                 ?? throw new NotFoundException($"Доктор с ID {request.DoctorId} не найден.");
 
-            var roomUrl = $"https://localhost:7057/api/Hospitals/{request.HospitalId}/Rooms";
+            var roomUrl = $"{_externalServicesConfig.HospitalService}/api/Hospitals/{request.HospitalId}/Rooms";
 
             var hospitalInfo = await _externalClientService
                 .SendRequestAsync<List<RoomInfoDTO>>(accessToken, roomUrl, HttpMethod.Get, null)
@@ -92,13 +97,19 @@ namespace Simbir.Health.Timetable.Services
                 throw new ApiException("Есть записавшиеся на приём.");
             }
 
-            var doctorUrl = $"https://localhost:7136/api/Doctors/{request.DoctorId}";
+            request.To = request.To.AddMilliseconds(-request.To.Millisecond);
+            request.From = request.From.AddMilliseconds(-request.From.Millisecond);
+
+            var timetable = await _context.TimeTable.FirstOrDefaultAsync(t => t.Id == timeTableId)
+                ?? throw new NotFoundException("Запись не найдена.");
+
+            var doctorUrl = $"{_externalServicesConfig.AccountService}/api/Doctors/{request.DoctorId}";
 
             var doctor = await _externalClientService
                 .SendRequestAsync<DoctorInformationDTO>(accessToken, doctorUrl, HttpMethod.Get, null)
                 ?? throw new NotFoundException($"Доктор с ID {request.DoctorId} не найден.");
 
-            var roomUrl = $"https://localhost:7057/api/Hospitals/{request.HospitalId}/Rooms";
+            var roomUrl = $"{_externalServicesConfig.HospitalService}/api/Hospitals/{request.HospitalId}/Rooms";
 
             var hospitalInfo = await _externalClientService
                 .SendRequestAsync<List<RoomInfoDTO>>(accessToken, roomUrl, HttpMethod.Get, null)
@@ -109,16 +120,12 @@ namespace Simbir.Health.Timetable.Services
                 throw new ApiException($"Комната \"{request.Room}\" в больнице с ID {request.HospitalId} не найдена.");
             }
 
-            var timetable = new TimeTableEntity
-            {
-                HospitalId = request.HospitalId,
-                DoctorId = request.DoctorId,
-                StartTime = request.From,
-                EndTime = request.To,
-                RoomId = hospitalInfo.First(r => r.Name.Equals(request.Room)).Id
-            };
+            timetable.HospitalId = request.HospitalId;
+            timetable.DoctorId = request.DoctorId;
+            timetable.StartTime = request.From;
+            timetable.EndTime = request.To;
+            timetable.RoomId = hospitalInfo.First(r => r.Name.Equals(request.Room)).Id;
 
-            await _context.TimeTable.AddAsync(timetable);
             await _context.SaveChangesAsync();
         }
 
@@ -186,7 +193,7 @@ namespace Simbir.Health.Timetable.Services
                     RoomId = t.RoomId
                 }).ToListAsync();
 
-            var roomUrl = $"https://localhost:7057/api/Hospitals/{hospitalId}/Rooms";
+            var roomUrl = $"{_externalServicesConfig.HospitalService}/api/Hospitals/{hospitalId}/Rooms";
 
             var hospitalInfo = await _externalClientService
                 .SendRequestAsync<List<RoomInfoDTO>>(accessToken, roomUrl, HttpMethod.Get, null)
@@ -199,7 +206,7 @@ namespace Simbir.Health.Timetable.Services
 
             foreach (var item in list)
             {
-                var doctorUrl = $"https://localhost:7136/api/Doctors/{item.DoctorId}";
+                var doctorUrl = $"{_externalServicesConfig.AccountService}/api/Doctors/{item.DoctorId}";
 
                 var doctor = await _externalClientService
                     .SendRequestAsync<DoctorInformationDTO>(accessToken, doctorUrl, HttpMethod.Get, null)
@@ -239,7 +246,7 @@ namespace Simbir.Health.Timetable.Services
 
             foreach (var hospitalId in hospitalIdList)
             {
-                var hospitalInfoUrl = $"https://localhost:7057/api/Hospitals/{hospitalId}";
+                var hospitalInfoUrl = $"{_externalServicesConfig.HospitalService}/api/Hospitals/{hospitalId}";
 
                 var hospitalInfo = await _externalClientService
                     .SendRequestAsync<HospitalDetailedInfoDTO>(accessToken, hospitalInfoUrl, HttpMethod.Get, null)
@@ -275,7 +282,7 @@ namespace Simbir.Health.Timetable.Services
                 query = query.Where(t => t.EndTime <= dateEnd);
             }
 
-            var hospitalInfoUrl = $"https://localhost:7057/api/Hospitals/{filter.HospitalId}/Rooms";
+            var hospitalInfoUrl = $"{_externalServicesConfig.HospitalService}/api/Hospitals/{filter.HospitalId}/Rooms";
 
             var hospitalInfo = await _externalClientService
                 .SendRequestAsync<List<RoomInfoDTO>>(accessToken, hospitalInfoUrl, HttpMethod.Get, null)
@@ -286,8 +293,10 @@ namespace Simbir.Health.Timetable.Services
                 throw new ApiException($"Комната {filter.RoomNumber} не найден.");
             }
 
+            var roomId = hospitalInfo.First(h => h.Name == filter.RoomNumber).Id;
+
             var list = await query
-                .Where(t => t.RoomId == hospitalInfo.First(h => h.Name == filter.RoomNumber).Id)
+                .Where(t => t.RoomId == roomId)
                 .Select(t => new RoomTimeTableInfoDTO
                 {
                     Id = t.Id,
@@ -300,9 +309,9 @@ namespace Simbir.Health.Timetable.Services
 
             foreach (var doctorId in doctorIdList)
             {
-                var doctorInfoUrl = $"https://localhost:7057/api/Doctors/{doctorId}";
+                var doctorInfoUrl = $"{_externalServicesConfig.AccountService}/api/Doctors/{doctorId}";
 
-                var doctorUrl = $"https://localhost:7136/api/Doctors/{doctorId}";
+                var doctorUrl = $"{_externalServicesConfig.AccountService}/api/Doctors/{doctorId}";
 
                 var doctor = await _externalClientService
                     .SendRequestAsync<DoctorInformationDTO>(accessToken, doctorUrl, HttpMethod.Get, null)
@@ -359,6 +368,8 @@ namespace Simbir.Health.Timetable.Services
                 throw new ApiException("Количество минут всегда кратно 30, секунды всегда 0.");
             }
 
+            request.Time = request.Time.AddMilliseconds(-request.Time.Millisecond);
+
             var timetable = await _context.TimeTable
                 .Where(t => t.Id == id)
                 .Select(t => new
@@ -381,13 +392,12 @@ namespace Simbir.Health.Timetable.Services
                 throw new ApiException("Выбранное время приёма уже занято.");
             }
 
-            var meInfoUrl = $"https://localhost:7136/api/Accounts/Me";
+            var meInfoUrl = $"{_externalServicesConfig.AccountService}/api/Accounts/Me";
 
             var meInfo = await _externalClientService
                 .SendRequestAsync<AccountMeInfoResponse>(accessToken, meInfoUrl, HttpMethod.Get, null)
                 ?? throw new ApiException("Действие запрещено.");
 
-            // Создаем новую запись на приём
             var appointment = new Appointment
             {
                 TimetableId = id,
@@ -405,19 +415,17 @@ namespace Simbir.Health.Timetable.Services
                 .FirstOrDefaultAsync(a => a.Id == id)
                 ?? throw new NotFoundException($"Запись на приём с ID {id} не найдена.");
 
-            var meInfoUrl = $"https://localhost:7136/api/Accounts/Me";
+            var meInfoUrl = $"{_externalServicesConfig.AccountService}/api/Accounts/Me";
 
             var meInfo = await _externalClientService
                 .SendRequestAsync<AccountMeInfoResponse>(accessToken, meInfoUrl, HttpMethod.Get, null)
                 ?? throw new ApiException("Действие запрещено.");
 
-            // Проверить, является ли пользователь администратором, менеджером или записавшимся на приём
             if (!meInfo.Roles.Any(r => r == "Admin" || r == "Manager") && meInfo.Id != appointment.UserId)
             {
                 throw new NotFoundException("Запись не найдена.");
             }
 
-            // Удалить запись на приём
             _context.Appointments.Remove(appointment);
             await _context.SaveChangesAsync();
         }

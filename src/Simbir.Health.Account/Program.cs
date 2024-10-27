@@ -52,7 +52,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "AccountService API", Version = "v1" });
 
-    // Настройка Swagger для использования JWT
     var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -94,13 +93,8 @@ var app = builder.Build();
 await app.InitializeDatabaseAsync();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();

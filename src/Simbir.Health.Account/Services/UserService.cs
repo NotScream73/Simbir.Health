@@ -229,7 +229,7 @@ namespace Simbir.Health.Account.Services
             var userRoles = roles.Select(r => new UserRole
             {
                 RoleId = r.Id,
-                UserId = r.Id
+                UserId = user.Id
             });
 
             await _context.UserRoles.AddRangeAsync(userRoles);
@@ -243,7 +243,7 @@ namespace Simbir.Health.Account.Services
 
         public async Task UpdateUserAsync(int userId, UserUpdateByAdminDTO userDTO)
         {
-            var user = _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Id == userId)
+            var user = _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Id == userId && !u.IsDeleted)
                 ?? throw new NotFoundException($"Пользователь с ID {userId} не найден.");
 
             var existUserName = await _context.Users.AnyAsync(u => u.UserName == userDTO.Username && u.Id != userId);
@@ -260,6 +260,11 @@ namespace Simbir.Health.Account.Services
             var currentRoleIds = user.UserRoles.Select(ur => ur.Role.Id).ToList();
 
             var newRoleIds = _context.Roles.Where(r => userDTO.Roles.Contains(r.Name)).Select(i => i.Id).ToList();
+
+            if (newRoleIds.Count != userDTO.Roles.Length)
+            {
+                throw new ApiException("Не удалось найти роль.");
+            }
 
             var rolesToAdd = newRoleIds.Except(currentRoleIds).ToList();
             var rolesToRemove = currentRoleIds.Except(newRoleIds).ToList();
@@ -347,6 +352,25 @@ namespace Simbir.Health.Account.Services
                 ).FirstOrDefaultAsync() ?? throw new NotFoundException($"Доктор с ID {id} не найден.");
 
             return _mapper.Map<DoctorInformationDTO>(doctor);
+        }
+
+        public async Task<string[]> GetUserRolesByIdAsync(int id)
+        {
+            var roles = await
+                (
+                    from u in _context.Users
+                    join ur in _context.UserRoles on u.Id equals ur.UserId
+                    join r in _context.Roles on ur.RoleId equals r.Id
+                    where u.Id == id && !u.IsDeleted
+                    select r.Name
+                ).ToArrayAsync();
+
+            if (roles.Length == 0)
+            {
+                throw new NotFoundException($"Пользователь с {id} не найден.");
+            }
+
+            return roles;
         }
     }
 }

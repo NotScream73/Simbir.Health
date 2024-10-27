@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Simbir.Health.Hospital.Attributes;
-using Simbir.Health.Hospital.Models.DTO;
+using Simbir.Health.Hospital.Controllers.DTO;
 using Simbir.Health.Hospital.Services;
 using System.ComponentModel.DataAnnotations;
 
@@ -49,11 +49,11 @@ namespace Simbir.Health.Hospital.Controllers
             return Ok(hospitalId);
         }
 
-        [HttpPut("{hospitalId:int}")]
+        [HttpPut("{id:int}")]
         [ApiAuthorize("Admin")]
-        public async Task<IActionResult> UpdateHospital([Required] int hospitalId, [FromBody] HospitalUpdateRequest request)
+        public async Task<IActionResult> UpdateHospital([Required] int id, [FromBody] HospitalUpdateRequest request)
         {
-            await _hospitalService.UpdateHospitalAsync(hospitalId, request);
+            await _hospitalService.UpdateHospitalAsync(id, request);
             return Ok();
         }
 
