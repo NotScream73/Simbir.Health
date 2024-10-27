@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Simbir.Health.Account.Controllers.DTO;
 using Simbir.Health.Account.Exceptions;
-using Simbir.Health.Account.Models.DTO;
 using Simbir.Health.Account.Services;
 using Simbir.Health.Account.Services.DTO;
 using System.ComponentModel.DataAnnotations;
@@ -75,7 +75,6 @@ namespace Simbir.Health.Account.Controllers
         public async Task<IActionResult> Validate([FromQuery][Required] string accessToken)
         {
             var validationResult = await _tokenService.ValidateAccessToken(accessToken);
-
             return Ok(_mapper.Map<ValidationTokenResult>(validationResult));
         }
 

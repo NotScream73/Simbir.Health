@@ -1,0 +1,115 @@
+services:
+  account-service:
+    container_name: account-service
+    build:
+      context: .
+      dockerfile: ./src/Simbir.Health.Account/Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - postgres-account-db
+    ports:
+      - "5000:80"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 80
+  postgres-account-db:
+    container_name: postgres-account-db
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: accounts
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres-account-data:/var/lib/postgresql/data
+  hospital-service:
+    container_name: hospital-service
+    build:
+      context: .
+      dockerfile: ./src/Simbir.Health.hospital/Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - postgres-hospital-db
+    ports:
+      - "5001:80"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 80
+  postgres-hospital-db:
+    container_name: postgres-hospital-db
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hospitals
+    ports:
+      - "5434:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres-hospital-data:/var/lib/postgresql/data
+  timetable-service:
+    container_name: timetable-service
+    build:
+      context: .
+      dockerfile: ./src/Simbir.Health.timetable/Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - postgres-timetable-db
+    ports:
+      - "5002:80"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 80
+  postgres-timetable-db:
+    container_name: postgres-timetable-db
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: timetables
+    ports:
+      - "5435:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres-timetable-data:/var/lib/postgresql/data
+  document-service:
+    container_name: document-service
+    build:
+      context: .
+      dockerfile: ./src/Simbir.Health.document/Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - postgres-document-db
+    ports:
+      - "5003:80"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 80
+  postgres-document-db:
+    container_name: postgres-document-db
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: documents
+    ports:
+      - "5436:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres-document-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-account-data:
+  postgres-hospital-data:
+  postgres-document-data:
+  postgres-timetable-data:
+  
+networks:
+  app-network:
+  

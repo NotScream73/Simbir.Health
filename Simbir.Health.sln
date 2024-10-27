@@ -3,13 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simbir.Health.Account", "src\Simbir.Health.Account\Simbir.Health.Account.csproj", "{1E31B66E-BDDF-4BF6-B715-8680A4F85E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simbir.Health.Account", "src\Simbir.Health.Account\Simbir.Health.Account.csproj", "{1E31B66E-BDDF-4BF6-B715-8680A4F85E8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simbir.Health.Hospital", "src\Simbir.Health.Hospital\Simbir.Health.Hospital.csproj", "{D7C874AD-A313-4A50-B6CB-7915EAE61886}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simbir.Health.Hospital", "src\Simbir.Health.Hospital\Simbir.Health.Hospital.csproj", "{D7C874AD-A313-4A50-B6CB-7915EAE61886}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simbir.Health.Timetable", "src\Simbir.Health.Timetable\Simbir.Health.Timetable.csproj", "{EAD4CAAF-07C4-488C-89D8-E50FB3FCB207}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simbir.Health.Timetable", "src\Simbir.Health.Timetable\Simbir.Health.Timetable.csproj", "{EAD4CAAF-07C4-488C-89D8-E50FB3FCB207}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simbir.Health.Document", "src\Simbir.Health.Document\Simbir.Health.Document.csproj", "{B28B1735-6109-45C1-A434-B416E0D3DF86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simbir.Health.Document", "src\Simbir.Health.Document\Simbir.Health.Document.csproj", "{B28B1735-6109-45C1-A434-B416E0D3DF86}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "!Solution Items", "!Solution Items", "{50967B5A-9216-4027-9FB1-8FBD7CC7179D}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yaml = docker-compose.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

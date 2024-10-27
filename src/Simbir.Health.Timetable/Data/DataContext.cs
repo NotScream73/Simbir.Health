@@ -7,8 +7,6 @@ namespace Simbir.Health.Timetable.Data
     {
         public DbSet<TimeTableEntity> TimeTable { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DataContext() { }
-
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

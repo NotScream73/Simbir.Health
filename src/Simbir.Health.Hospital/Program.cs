@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Simbir.Health.Hospital.Configurations;
 using Simbir.Health.Hospital.Data;
 using Simbir.Health.Hospital.Filters;
 using Simbir.Health.Hospital.Services;
@@ -25,6 +26,7 @@ builder.Services.AddControllers(options =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.Configure<ExternalServiceBaseUrlConfig>(builder.Configuration.GetSection("ExternalServiceBaseUrl"));
 
 builder.Services.AddScoped<IHospitalService, HospitalService>();
 
@@ -45,9 +47,8 @@ builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.Authenticati
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hospital API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "HospitalService API", Version = "v1" });
 
-    // Настройка Swagger для использования JWT
     var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -58,7 +59,7 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT",
         Reference = new OpenApiReference
         {
-            Id = "Bearer",
+            Id = JwtBearerDefaults.AuthenticationScheme,
             Type = ReferenceType.SecurityScheme
         }
     };
@@ -89,13 +90,8 @@ var app = builder.Build();
 await app.InitializeDatabaseAsync();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 

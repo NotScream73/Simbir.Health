@@ -1,4 +1,4 @@
-﻿using Simbir.Health.Timetable.Models.DTO;
+﻿using Simbir.Health.Timetable.Controllers.DTO;
 using Simbir.Health.Timetable.Services.DTO;
 
 namespace Simbir.Health.Timetable.Services
